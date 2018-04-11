@@ -11,21 +11,21 @@ $restarter = $('.restart');
 $moves = $('.moves');
 
 function display(cards) {
-  
+
   shuffled = shuffle(cards);
   for (let i = 0; i < shuffled.length; i++) {
    $card = preparingCard(shuffled[i]);
 
   $('.deck').append($card);
   }
-  
+
   preparingDeck();
-  
+
 	second = 0;
 	$timer.text(`${second}`);
 	initTime();
-  
-  
+
+
   $restarter.on('click', function(){
     restart();
   });
@@ -33,9 +33,9 @@ function display(cards) {
 
 
 function preparingDeck() {
-  
-  $moves.text(movesCount);
- 
+
+  $moves.text(`${movesCount}`);
+
   let j = 2;
   while( j >= 0){
    			$('.stars').append('<li><i class="fa fa-star"></i></li>');
@@ -51,25 +51,25 @@ function preparingCard(name) {
 
    $card.on("click", function(){
       $moves.text(++movesCount);
-    
+
      if(opened_cards.includes($(this)) == false) {
        $(this).addClass("show open");
         opened_cards.push($(this));
    }
-     
+
     if (opened_cards.length == 2){
       check_for_match();
    }
-     
+
      if (movesCount % 10 == 0) {
         if (starCounts >= 0) {
             $('.stars').children()[starCounts-1].remove();
    		      $('.stars').append('<li><i class="fa fa-star-o"></i></li>');
-       
+
            starCounts -= 1;
       }
    }
-     
+
    });
 
    return $card
@@ -78,9 +78,11 @@ function preparingCard(name) {
 
 function check_for_match() {
 if ( opened_cards[0].children().attr('class') == opened_cards[1].children().attr('class')) {
+  opened_cards[0].addClass("match");
+  opened_cards[1].addClass("match");
   matchers += 1;
   opened_cards = [];
-  
+
   if ( matchers == 8 ){
   $('#win').show();
     $("#restart").on('click', function () {
