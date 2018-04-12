@@ -104,14 +104,15 @@ if ( opened_cards[0].children().attr('class') == opened_cards[1].children().attr
 
 
 function restart(){
- 	$('.deck').empty();
+  $('.deck').empty();
  	opened_cards =[];
  		//Re-shuffle
- 	display(card_list);
-  cleanStars();
+   cleanStars();
  	//reset matching
  	matchers = 0;
   movesCount = 0;
+
+ 	display(card_list);
 }
 
 
