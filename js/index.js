@@ -1,25 +1,33 @@
 card_list = ["space-shuttle","space-shuttle", "laptop", "laptop", "git-square", "git-square", "gamepad","gamepad","headphones","headphones", "rocket","rocket","linux","linux","reddit-alien","reddit-alien" ];
 
-matchers = 0
-movesCount = 0
-starCounts = 3
-opened_cards = []
-
+matchers = 0;
+movesCount = 0;
+starCounts = 3;
+opened_cards = [];
 
 $timer = $('.timer');
 $restarter = $('.restart');
 $moves = $('.moves');
+$finalStars = $('.finalStars');
+$finalTimer = $('.finalTimer');
+currentTimer = null;
 
+/*
+display:
+prepare the deck in general;
+- shuffles and display the cards on the deck.
+- call prepareCounters.
+- start a timer and displays it on the deck.
+*/
 function display(cards) {
 
   shuffled = shuffle(cards);
   for (let i = 0; i < shuffled.length; i++) {
-   $card = preparingCard(shuffled[i]);
-
-  $('.deck').append($card);
+       $card = preparingCard(shuffled[i]);
+       $('.deck').append($card);
   }
 
-  preparingDeck();
+  prepareCounters();
 
 	second = 0;
 	$timer.text(`${second}`);
@@ -27,12 +35,17 @@ function display(cards) {
 
 
   $restarter.on('click', function(){
-    restart();
+      restart();
   });
 }
 
 
-function preparingDeck() {
+/*
+prepareCounters:
+- displays number of moves on the deck.
+- list the stars on the deck.
+*/
+function prepareCounters() {
 
   $moves.text(`${movesCount}`);
 
@@ -43,25 +56,35 @@ function preparingDeck() {
  		}
 }
 
-
+/*
+preparingCard:
+- prepare a card.
+- it does the following functionalities:
+    - if a card clicked, it displays its symbol.
+    - if multiple cards been clicked, it call check function to check if they're matched.
+    - it reduces stars count after certain number of cards clicks.
+*/
 function preparingCard(name) {
   $card = $(`<li class="card">
                <i class="fa fa-${name}"></i>
            </li>`);
 
-   $card.on("click", function(){
+  $card.on("click", function(){
+
+  if (!$(this).hasClass('show open')) {
+
       $moves.text(++movesCount);
 
-     if(opened_cards.includes($(this)) == false) {
-       $(this).addClass("show open");
-        opened_cards.push($(this));
+     if(!opened_cards.includes($(this))) {
+         $(this).addClass("show open");
+         opened_cards.push($(this));
    }
 
     if (opened_cards.length == 2){
-      check_for_match();
+         check_for_match();
    }
 
-     if (movesCount % 10 == 0) {
+    if (movesCount % 10 == 0) {
         if (starCounts >= 0) {
             $('.stars').children()[starCounts-1].remove();
    		      $('.stars').append('<li><i class="fa fa-star-o"></i></li>');
@@ -69,22 +92,35 @@ function preparingCard(name) {
            starCounts -= 1;
       }
    }
+}
 
    });
 
-   return $card
+   return $card;
 }
 
 
+
+
+/*
+check_for_match:
+- check if two opened cards are mathed, if so.. it add class match and increment the number of matchers then clean the opened cards array.
+- in case it reaches 8 matchers, it shows the winning div.
+-
+*/
 function check_for_match() {
 if ( opened_cards[0].children().attr('class') == opened_cards[1].children().attr('class')) {
   opened_cards[0].addClass("match");
   opened_cards[1].addClass("match");
   matchers += 1;
+
   opened_cards = [];
 
   if ( matchers == 8 ){
-  $('#win').show();
+    $('#win').show();
+    $finalStars.text(`${starCounts}`);
+    $finalTimer.text(`${second}`);
+
     $("#restart").on('click', function () {
 			$("#win").hide();
 			restart();
@@ -103,19 +139,26 @@ if ( opened_cards[0].children().attr('class') == opened_cards[1].children().attr
 
 
 
+/*
+restart:
+- it resets everything to play the game again.
+*/
 function restart(){
-  $('.deck').empty();
+ 	$('.deck').empty();
  	opened_cards =[];
- 		//Re-shuffle
-   cleanStars();
- 	//reset matching
+  cleanStars();
  	matchers = 0;
   movesCount = 0;
+  resetTimer(currentTimer);
 
  	display(card_list);
+
 }
 
-
+/*
+cleanStars:
+- it removes the empty stars during restarting the game so that the filled stars will take its place.
+*/
 function cleanStars() {
   let j = 2;
   while(j >= 0){
@@ -141,13 +184,22 @@ function shuffle(array) {
 
 
 
+/*
+initTime:
+- initialize the timer.
+*/
 function initTime() {
 	currentTimer = setInterval(function () {
-		$timer.text(`${second}`)
-		second = second + 1
+		$timer.text(`${second}`);
+		second = second + 1;
 	}, 1000);
 }
 
+
+/*
+resetTimer:
+- Re-setting the timer.
+*/
 function resetTimer(timer) {
 	if (timer) {
 		clearInterval(timer);
